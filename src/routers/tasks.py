@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,3 +26,46 @@ async def create_task(task_data: TaskCreate, db: AsyncSession = Depends(get_db))
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{task_id}")
+async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        task = await db.get(TaskModel, task_id)
+
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Задача с id {task_id} не найдена"
+            )
+
+        await db.delete(task)
+
+        await db.commit()
+
+        return {"status": "success", "message": f"Задача {task_id} успешно удалена"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.patch("/{task_id}/confirm")
+async def is_confirmed(task_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        task = await db.get(TaskModel, task_id)
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Задача с id {task_id} не найдена"
+            )
+        task.confirmed = True
+        await db.commit()
+        return {"status": "success"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+

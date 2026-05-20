@@ -1,10 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsyncDo — Современный Менеджер Задач</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .add-btn {
+            padding: 14px 24px;
+            border: none;
+            background: #4a6cf7;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .add-btn:hover { background: #3855d6; }
+
+        ul { list-style: none; padding: 0; margin: 0; }
+
+        li {
+            background: #ffffff;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4a6cf7;
+            border-top: 1px solid #f0f4f8;
+            border-right: 1px solid #f0f4f8;
+            border-bottom: 1px solid #f0f4f8;
+        }
+        li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+        }
+
+        .task-text {
+            font-size: 16px;
+            color: #2d3748;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions button {
+            padding: 8px 14px !important;
+            border: none !important;
+            outline: none !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+        }
+
+        .conf-btn {
+            background: #e6fffa !important;
+            color: #319795 !important;
+        }
+        .conf-btn:hover {
+            background: #319795 !important;
+            color: white !important;
+        }
+
+        .delete-btn {
+            background: #fff5f5 !important;
+            color: #e53e3e !important;
+        }
+        .delete-btn:hover {
+            background: #e53e3e !important;
+            color: white !important;
+        }
+
+        li.completed {
+            border-left-color: #a0aec0;
+            background: #f7fafc;
+        }
+        li.completed .task-text {
+            text-decoration: line-through;
+            color: #a0aec0;
+        }
+    </style>
 </head>
 <body>
-$END$
+
+    <div class="app-container">
+        <div class="card">
+            <h2>AsyncDo</h2>
+
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Какую задачу нужно выполнить?">
+                <button class="add-btn" onclick="addTask()">Добавить</button>
+            </div>
+
+            <ul id="taskList"></ul>
+        </div>
+    </div>
+
+    <script src="/frontend/js/app.js"></script>
 </body>
 </html>
