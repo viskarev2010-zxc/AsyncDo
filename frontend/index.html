@@ -141,16 +141,32 @@
 <body>
 
     <div class="app-container">
-        <div class="card">
-            <h2>AsyncDo</h2>
 
-            <div class="input-group">
-                <input type="text" id="taskInput" placeholder="Какую задачу нужно выполнить?">
-                <button class="add-btn" onclick="addTask()">Добавить</button>
+        <div id="authScreen" class="card">
+            <h2>🔑 Вход в систему</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <input type="text" id="authLogin" placeholder="Введите ваш логин">
+                <input type="password" id="authPassword" placeholder="Введите ваш пароль">
             </div>
-
-            <ul id="taskList"></ul>
+            <div class="actions" style="justify-content: flex-start;">
+                <button class="conf-btn" onclick="login()">Войти</button>
+                <button class="add-btn" style="border-radius: 6px !important;" onclick="register()">Создать профиль</button>
+            </div>
         </div>
+
+        <div id="taskScreen" style="display: none;">
+            <div class="card" style="margin-top: 20px;">
+                <h2>⚡ AsyncDo (<span id="userLabel">Профиль</span>)</h2>
+
+                <div class="input-group">
+                    <input type="text" id="taskInput" placeholder="Какую задачу нужно выполнить?">
+                    <button class="add-btn" onclick="addTask()">Добавить</button>
+                </div>
+
+                <ul id="taskList"></ul>
+            </div>
+        </div>
+
     </div>
 
     <script src="/frontend/js/app.js"></script>

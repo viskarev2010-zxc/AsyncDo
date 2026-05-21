@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.config import settings
-from src.routers import tasks_router
+from src.routers import tasks_router, users_router
 from src.database import engine, Base
 import src.models
 
@@ -26,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(tasks_router)
+app.include_router(users_router)
 
 @app.get("/")
 async def get_index():
