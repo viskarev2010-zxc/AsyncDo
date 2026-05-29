@@ -8,7 +8,6 @@ from fastapi.staticfiles import StaticFiles
 from src.config import settings
 from src.routers import tasks_router, users_router
 from src.database import engine, Base
-import src.models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

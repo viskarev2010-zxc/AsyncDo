@@ -136,13 +136,128 @@
             text-decoration: line-through;
             color: #a0aec0;
         }
+        .header {
+            background: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4a6cf7;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-icon {
+            font-size: 20px;
+        }
+
+        .user-name {
+            font-size: 15px;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            padding: 8px 18px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #fff5f5;
+            border-color: #e53e3e;
+            color: #e53e3e;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #4a5568;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: #4a6cf7;
+            color: white;
+            border-color: #4a6cf7;
+        }
+
+        .find-bar {
+            margin-bottom: 12px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        #searchInput:focus {
+            border-color: #4a6cf7;
+        }
     </style>
 </head>
 <body>
+    <header class="header">
+    <div class="header-left">
+        <span class="logo">⚡ AsyncDo</span>
+    </div>
 
+    <div class="header-right" id="headerRegister" style="display: flex;">
+        <div class="user-info">
+            <span class="user-icon">👤</span>
+            <button class="add-btn" style="border-radius: 6px; padding: 8px 18px; font-size: 14px;" onclick="showAuth()">Вход</button>
+        </div>
+    </div>
+
+    <div class="header-right" id="headerLogining" style="display: none;">
+        <div class="user-info">
+            <span class="user-icon">👤</span>
+            <span class="user-name" id="headerUserName"></span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+</header>
     <div class="app-container">
 
-        <div id="authScreen" class="card">
+        <div id="authScreen" class="card" style="display: none;">
             <h2>🔑 Вход в систему</h2>
             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
                 <input type="text" id="authLogin" placeholder="Введите ваш логин">
@@ -154,15 +269,37 @@
             </div>
         </div>
 
+        <div id="welcomeScreen" class="card">
+            <h2>👋 Добро пожаловать в AsyncDo</h2>
+            <p style="color: #4a5568; font-size: 16px; line-height: 1.6;">
+                Это современный менеджер задач, который поможет вам организовать свой день.
+            </p>
+            <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <p style="color: #2d3748; font-weight: 600; margin-top: 0;">Как начать:</p>
+                <ol style="color: #4a5568; padding-left: 20px; line-height: 1.8;">
+                    <li>Нажмите кнопку <strong>"Вход"</strong> в шапке сайта</li>
+                    <li>Если у вас нет профиля, нажмите <strong>"Создать профиль"</strong></li>
+                    <li>После входа вы сможете добавлять, отмечать и удалять задачи</li>
+                </ol>
+            </div>
+        </div>
+
         <div id="taskScreen" style="display: none;">
             <div class="card" style="margin-top: 20px;">
-                <h2>⚡ AsyncDo (<span id="userLabel">Профиль</span>)</h2>
+                <h2>⚡ AsyncDo </h2>
 
                 <div class="input-group">
                     <input type="text" id="taskInput" placeholder="Какую задачу нужно выполнить?">
                     <button class="add-btn" onclick="addTask()">Добавить</button>
                 </div>
-
+                <div class="find-bar">
+                    <input type="text" id="searchInput" placeholder="Поиск задач...">
+                </div>
+                <div class="filter-bar">
+                    <button class="filter-btn active" id="filterAll" onclick="filter('all')">Все</button>
+                    <button class="filter-btn" id="filterActive" onclick="filter('active')">Активные</button>
+                    <button class="filter-btn" id="filterCompleted" onclick="filter('completed')">Выполненные</button>
+                </div>
                 <ul id="taskList"></ul>
             </div>
         </div>

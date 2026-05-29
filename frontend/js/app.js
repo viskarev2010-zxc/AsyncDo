@@ -3,6 +3,9 @@ const USER_API_URL = 'http://127.0.0.1:8000/api/users';
 
 let currentUserId = null;
 
+let currentFilter = 'all'
+let currentSearch = ''
+
 async function register() {
     const loginInput = document.getElementById('authLogin');
     const passwordInput = document.getElementById('authPassword');
@@ -25,7 +28,9 @@ async function register() {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Профиль успешно создан! Теперь нажмите кнопку 'Войти'.");
+            alert("Профиль успешно создан! Теперь войдите в аккаунт.");
+            loginInput.value = '';
+            passwordInput.value = '';
         } else {
             alert("Ошибка регистрации: " + (data.detail || "Неизвестная ошибка"));
         }
@@ -53,10 +58,12 @@ async function login() {
         if (response.ok) {
             currentUserId = data.user_id;
 
-            document.getElementById('userLabel').textContent = login;
-
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('taskScreen').style.display = 'block';
+            document.getElementById('headerUserName').textContent = login;
+            document.getElementById('headerRegister').style.display = 'none';
+            document.getElementById('headerLogining').style.display = 'flex';
+            document.getElementById('welcomeScreen').style.display = 'none';
 
             await loadTasks();
         } else {
@@ -74,7 +81,19 @@ async function loadTasks() {
         const ul = document.getElementById('taskList');
         ul.innerHTML = '';
 
-        tasks.forEach(task => {
+        let filteredTasks = tasks;
+        if (currentFilter === 'active') {
+            filteredTasks = tasks.filter(task => !task.confirmed);
+        } else if (currentFilter === 'completed') {
+            filteredTasks = tasks.filter(task => task.confirmed);
+        }
+        if (currentSearch) {
+            filteredTasks = filteredTasks.filter(task =>
+                task.title.toLowerCase().includes(currentSearch)
+            );
+        }
+
+        filteredTasks.forEach(task => {
             const li = document.createElement('li');
             
             const textSpan = document.createElement('span');
@@ -104,7 +123,6 @@ async function loadTasks() {
                 deleteTask(task.id);
             };
             actionsDiv.appendChild(deleteBtn);
-
             li.appendChild(actionsDiv);
             ul.appendChild(li);
         });
@@ -161,3 +179,39 @@ async function confirmTask(taskId) {
         console.error("Ошибка при подтверждении задачи:", error);
     }
 }
+
+async function logout() {
+    currentUserId = null;
+    document.getElementById('taskScreen').style.display = 'none';
+    document.getElementById('headerLogining').style.display = 'none';
+    document.getElementById('headerRegister').style.display = 'flex';
+    document.getElementById('welcomeScreen').style.display = 'block';
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('authLogin').value = '';
+    document.getElementById('authPassword').value = '';
+    document.getElementById('searchInput').value = ''
+}
+
+async function showAuth() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'block';
+}
+
+async function filter(status) {
+    currentFilter = status;
+
+    document.getElementById('filterAll').classList.remove('active');
+    document.getElementById('filterActive').classList.remove('active');
+    document.getElementById('filterCompleted').classList.remove('active');
+
+    if (status === 'all') document.getElementById('filterAll').classList.add('active');
+    else if (status === 'active') document.getElementById('filterActive').classList.add('active');
+    else if (status === 'completed') document.getElementById('filterCompleted').classList.add('active');
+
+    await loadTasks();
+}
+
+document.getElementById('searchInput').addEventListener('input', async function(e) {
+    currentSearch = e.target.value.toLowerCase();
+    await loadTasks();
+});

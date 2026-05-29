@@ -24,15 +24,18 @@
 - AsyncDo/
 - ├── frontend/
 - │ ├── index.html
-- │ └── js/
-- │ └── app.js
+- │ ├── js/
+- │ │ └── app.js
 - ├── src/
 - │ ├── models/
-- │ │ └── tasks.py
+- │ │ ├── tasks.py
+- │ │ └── users.py
 - │ ├── routers/
-- │ │ └── tasks.py
+- │ │ ├── tasks.py
+- │ │ └── users.py
 - │ ├── schemas/
-- │ │ └── tasks.py
+- │ │ ├── tasks.py
+- │ │ └── users.py
 - │ ├── init.py
 - │ ├── config.py
 - │ ├── database.py
@@ -67,8 +70,8 @@ pip install -r requirements.txt
 # Create .env file from example
 cp .env.example .env
 ```
-```
 Run the application
+```
 # Start the server
 uvicorn src.main:app --reload
 
