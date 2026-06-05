@@ -29,7 +29,7 @@ app.include_router(users_router)
 
 @app.get("/")
 async def get_index():
-    return FileResponse("frontend/index.html")
+    return FileResponse("frontend/html/index.html")
 
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 

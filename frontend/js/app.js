@@ -2,9 +2,9 @@ const API_URL = 'http://127.0.0.1:8000/api/tasks';
 const USER_API_URL = 'http://127.0.0.1:8000/api/users';
 
 let currentUserId = null;
-
 let currentFilter = 'all'
 let currentSearch = ''
+let currentSort = 'newest';
 
 async function register() {
     const loginInput = document.getElementById('authLogin');
@@ -93,8 +93,15 @@ async function loadTasks() {
             );
         }
 
+        await updateTaskCounter(filteredTasks);
+
+        if (currentSort === 'oldest') {
+            filteredTasks.reverse();
+        }
+
         filteredTasks.forEach(task => {
             const li = document.createElement('li');
+            li.setAttribute('data-task-id', task.id)
             
             const textSpan = document.createElement('span');
             textSpan.className = 'task-text';
@@ -123,6 +130,15 @@ async function loadTasks() {
                 deleteTask(task.id);
             };
             actionsDiv.appendChild(deleteBtn);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn';
+            editBtn.textContent = 'Редактировать';
+            editBtn.onclick = function() {
+                startEditTask(task.id, task.title);
+            };
+            actionsDiv.appendChild(editBtn);
+
             li.appendChild(actionsDiv);
             ul.appendChild(li);
         });
@@ -153,6 +169,9 @@ async function addTask() {
 }
 
 async function deleteTask(taskId) {
+    const li = document.querySelector(`li[data-task-id="${taskId}"]`);
+    li.classList.add('removing');
+
     try {
         const response = await fetch(`${API_URL}/${taskId}?user_id=${currentUserId}`, {
             method: 'DELETE',
@@ -162,7 +181,7 @@ async function deleteTask(taskId) {
             await loadTasks();
         }
     } catch (error) {
-        console.error("Ошибка при удалении задачи:", error);
+        li.classList.remove('removing');
     }
 }
 
@@ -215,3 +234,127 @@ document.getElementById('searchInput').addEventListener('input', async function(
     currentSearch = e.target.value.toLowerCase();
     await loadTasks();
 });
+
+async function startEditTask(taskId, oldTitle) {
+    const li = document.querySelector(`li[data-task-id="${taskId}"]`);
+    const textSpan = li.querySelector('.task-text');
+    const editBtn = li.querySelector('.edit-btn');
+
+    if (!textSpan) return;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldTitle;
+    input.className = 'task-text';
+    textSpan.replaceWith(input);
+
+    const confBtn = document.createElement('button');
+    confBtn.textContent = "Подтвердить";
+    confBtn.className = 'conf-btn2';
+    editBtn.replaceWith(confBtn);
+
+    input.focus();
+
+    let isClosing = false;
+
+    function revertUI() {
+        if (isClosing) return;
+        isClosing = true;
+        input.replaceWith(textSpan);
+        confBtn.replaceWith(editBtn);
+    }
+
+    async function save() {
+        const newTitle = input.value.trim();
+        if (newTitle && newTitle !== oldTitle) {
+            await saveEditTask(taskId, newTitle);
+        } else {
+            revertUI();
+        }
+    }
+
+    input.addEventListener('keydown', async function(e) {
+        if (e.key === 'Enter') {
+            await save();
+        } else if (e.key === 'Escape') {
+            revertUI();
+        }
+    });
+
+    confBtn.onmousedown = async function(e) {
+        e.preventDefault();
+        await save();
+    };
+
+    input.addEventListener('blur', function(e) {
+        if (e.relatedTarget !== confBtn) {
+            revertUI();
+        }
+    });
+}
+
+async function saveEditTask(taskId, newTitle) {
+    try {
+        const response = await fetch(`${API_URL}/${taskId}?user_id=${currentUserId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle })
+        });
+
+        if (response.ok) {
+            await loadTasks();
+        }
+    } catch (error) {
+        console.error("Ошибка при сохранении:", error);
+    }
+}
+
+async function updateTaskCounter(tasks) {
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.confirmed).length;
+    const active = total - completed;
+
+    document.getElementById('taskCounter').textContent =
+        `Активных: ${active} | Выполнено: ${completed} | Всего: ${total}`;
+}
+
+async function clearCompleted() {
+    try {
+        const response = await fetch(`${API_URL}?user_id=${currentUserId}`);
+        const tasks = await response.json();
+        const completed = tasks.filter(task => task.confirmed);
+
+        for (const task of completed) {
+            await fetch(`${API_URL}/${task.id}?user_id=${currentUserId}`, {
+                method: 'DELETE'
+            });
+        }
+        await loadTasks();
+    } catch (error) {
+        console.error("Ошибка при очистке:", error);
+    }
+}
+
+async function toggleSort() {
+    const btn = document.getElementById('sortBtn');
+
+    if (currentSort === 'newest') {
+        currentSort = 'oldest';
+        btn.textContent = 'Старые';
+    } else {
+        currentSort = 'newest';
+        btn.textContent = 'Новые';
+    }
+
+    await loadTasks();
+}
+
+async function toggleTheme() {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+}

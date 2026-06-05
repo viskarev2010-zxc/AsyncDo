@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsyncDo — Современный Менеджер Задач</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="logo">⚡ AsyncDo</span>
+        </div>
+
+        <div class="header-right" id="headerRegister" style="display: flex;">
+            <div class="user-info">
+                <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+                <img class="user-icon-img" src="/frontend/images/userlogo_theme_white.png" alt="userlogo" width="32">
+                <button class="header-login-btn" onclick="showAuth()">Вход</button>
+            </div>
+        </div>
+
+        <div class="header-right" id="headerLogining" style="display: none;">
+            <div class="user-info">
+                <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+                <img class="user-icon-img" src="/frontend/images/userlogo_theme_white.png" alt="userlogo" width="32">
+                <span class="user-name" id="headerUserName"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Выйти</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <div id="authScreen" class="card" style="display: none;">
+            <h2>🔑 Вход в систему</h2>
+            <div class="auth-fields">
+                <input type="text" id="authLogin" placeholder="Введите ваш логин">
+                <input type="password" id="authPassword" placeholder="Введите ваш пароль">
+            </div>
+            <div class="auth-buttons">
+                <button class="header-login-btn" onclick="login()">Войти</button>
+                <button class="add-btn auth-register-btn" onclick="register()">Создать профиль</button>
+            </div>
+        </div>
+
+        <div id="welcomeScreen" class="card">
+            <h2>👋 Добро пожаловать в AsyncDo</h2>
+            <p class="welcome-text">
+                Это современный менеджер задач, который поможет вам организовать свой день.
+            </p>
+            <div class="welcome-info">
+                <p class="welcome-heading">Как начать:</p>
+                <ol class="welcome-list">
+                    <li>Нажмите кнопку "Вход" в шапке сайта</li>
+                    <li>Если у вас нет профиля, нажмите "Создать профиль"</li>
+                    <li>После входа вы сможете добавлять, отмечать и удалять задачи</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="taskScreen" style="display: none;">
+            <div class="card task-card">
+                <h2>⚡ AsyncDo</h2>
+
+                <div class="input-group">
+                    <input type="text" id="taskInput" placeholder="Какую задачу нужно выполнить?">
+                    <button class="add-btn" onclick="addTask()">Добавить</button>
+                </div>
+
+                <div class="find-bar">
+                    <input type="text" id="searchInput" placeholder="Поиск задач...">
+                </div>
+
+                <div class="controls-bar">
+                    <div class="filter-group">
+                        <button class="filter-btn active" id="filterAll" onclick="filter('all')">Все</button>
+                        <button class="filter-btn" id="filterActive" onclick="filter('active')">Активные</button>
+                        <button class="filter-btn" id="filterCompleted" onclick="filter('completed')">Выполненные</button>
+                    </div>
+                    <div class="actions-group">
+                        <button class="filter-btn" id="sortBtn" onclick="toggleSort()">Новые</button>
+                        <button class="clear-btn" onclick="clearCompleted()">Очистить выполненные</button>
+                    </div>
+                </div>
+
+                <div class="task-counter" id="taskCounter"></div>
+                <ul id="taskList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/app.js"></script>
+</body>
+</html>

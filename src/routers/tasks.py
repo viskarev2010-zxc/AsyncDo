@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.schemas import TaskCreate
 from src.models import TaskModel
+from src.schemas.tasks import TaskUpdate
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
@@ -83,4 +84,26 @@ async def is_confirmed(task_id: int, user_id: int, db: AsyncSession = Depends(ge
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.patch("/{task_id}")
+async def update_task(
+        task_id: int,
+        user_id: int,
+        task_data: TaskUpdate,
+        db: AsyncSession = Depends(get_db)
+):
+    task = await db.get(TaskModel, task_id)
+
+    if task is None:
+        raise HTTPException(status_code=404, detail="Задача не найдена")
+
+    if task.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Нельзя редактировать чужую задачу")
+
+    task.title = task_data.title
+    await db.commit()
+
+    return {"status": "success"}
+
 

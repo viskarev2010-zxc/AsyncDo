@@ -1,0 +1,603 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app-container {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.input-group {
+    display: flex;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+input {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+}
+
+.add-btn {
+    padding: 14px 24px;
+    border: none;
+    background: #4a6cf7;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.add-btn:hover { background: #3855d6; }
+
+ul { list-style: none; padding: 0; margin: 0; }
+
+li {
+    background: #ffffff;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-left: 4px solid #4a6cf7;
+    border-top: 1px solid #f0f4f8;
+    border-right: 1px solid #f0f4f8;
+    border-bottom: 1px solid #f0f4f8;
+}
+li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+}
+
+.task-text {
+    font-size: 16px;
+    color: #2d3748;
+    flex: 1;
+    margin-right: 15px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.actions button {
+    padding: 8px 14px;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+.conf-btn {
+    background: #e6fffa;
+    color: #319795;
+}
+.conf-btn:hover {
+    background: #319795;
+    color: white;
+}
+
+.conf-btn2 {
+    background: #e4ffe8;
+    color: #44dc74;
+}
+.conf-btn2:hover {
+    background: #2a7e39;
+    color: white;
+}
+
+.edit-btn {
+    background: #e5f4ff;
+    color: #217fd2;
+}
+.edit-btn:hover {
+    background: #1661d8;
+    color: white;
+}
+
+.delete-btn {
+    background: #fff5f5;
+    color: #e53e3e;
+}
+.delete-btn:hover {
+    background: #e53e3e;
+    color: white;
+}
+
+li.completed {
+    border-left-color: #a0aec0;
+    background: #f7fafc;
+}
+li.completed .task-text {
+    text-decoration: line-through;
+    color: #a0aec0;
+}
+
+.header {
+    background: white;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #4a6cf7;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-icon-img {
+    width: 32px;
+    height: 32px;
+}
+
+.auth-register-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.user-name {
+    font-size: 15px;
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 8px 18px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+.logout-btn:hover {
+    background: #fff5f5;
+    border-color: #e53e3e;
+    color: #e53e3e;
+}
+
+.theme-btn {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.theme-btn:hover {
+    background: #f0f4f8;
+}
+
+.header-login-btn {
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 14px;
+    border: none;
+    background: #4a6cf7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    line-height: 1.4;
+    height: auto;
+}
+.header-login-btn:hover {
+    background: #3855d6;
+}
+
+.auth-register-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid #4a6cf7;
+    background: white;
+    color: #4a6cf7;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.auth-register-btn:hover {
+    background: #4a6cf7;
+    color: white;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+.filter-btn.active {
+    background: #4a6cf7;
+    color: white;
+    border-color: #4a6cf7;
+}
+
+.find-bar {
+    margin-bottom: 12px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+#searchInput:focus {
+    border-color: #4a6cf7;
+}
+
+.task-counter {
+    font-size: 14px;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 8px;
+}
+
+.actions-group {
+    display: flex;
+    gap: 8px;
+}
+
+.clear-btn {
+    padding: 8px 16px;
+    border: 1px solid #e53e3e;
+    background: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #e53e3e;
+    transition: all 0.2s ease;
+}
+.clear-btn:hover {
+    background: #e53e3e;
+    color: white;
+}
+
+.welcome-text {
+    color: #4a5568;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.welcome-info {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.welcome-heading {
+    color: #2d3748;
+    font-weight: 600;
+    margin-top: 0;
+}
+
+.welcome-list {
+    color: #4a5568;
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+.auth-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.auth-buttons {
+    justify-content: flex-start;
+}
+
+.auth-register-btn {
+    border-radius: 6px;
+}
+
+.task-card {
+    margin-top: 20px;
+}
+
+/* Анимации */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+li {
+    animation: slideIn 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+li.removing {
+    animation: slideOut 0.2s ease forwards;
+}
+
+mark {
+    background: #fefcbf;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.header-login-btn {
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 14px;
+    border: none;
+    background: #4a6cf7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.header-login-btn:hover {
+    background: #3855d6;
+}
+
+/* Тёмная тема */
+body.dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+body.dark .card,
+body.dark #welcomeScreen {
+    background: #1e293b;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+body.dark h2 {
+    color: #e2e8f0;
+}
+
+body.dark .task-text {
+    color: #e2e8f0;
+}
+
+body.dark li {
+    background: #334155;
+    border-color: #1e293b;
+}
+
+body.dark .header {
+    background: #1e293b;
+}
+
+body.dark .logo {
+    color: #818cf8;
+}
+
+body.dark .user-name {
+    color: #e2e8f0;
+}
+
+body.dark input {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+body.dark input::placeholder {
+    color: #94a3b8;
+}
+
+body.dark .filter-btn {
+    background: #334155;
+    color: #cbd5e1;
+    border-color: #475569;
+}
+
+body.dark .task-counter {
+    color: #94a3b8;
+}
+
+body.dark li.completed {
+    background: #2d3a4f;
+}
+
+body.dark .logout-btn {
+    background: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+body.dark .logout-btn:hover {
+    background: #991b1b;
+    border-color: #dc2626;
+    color: white;
+}
+
+body.dark .welcome-info {
+    background: #334155;
+}
+
+body.dark .welcome-text,
+body.dark .welcome-list {
+    color: #e2e8f0;
+}
+
+body.dark .welcome-heading {
+    color: #e2e8f0;
+}
+
+body.dark .clear-btn {
+    background: #334155;
+    color: #fca5a5;
+    border-color: #991b1b;
+}
+
+body.dark .clear-btn:hover {
+    background: #991b1b;
+    color: white;
+}
+
+body.dark .theme-btn {
+    background: #334155;
+    border-color: #475569;
+}
+
+body.dark .theme-btn:hover {
+    background: #475569;
+}
+
+body.dark mark {
+    background: #854d0e;
+    color: #fef08a;
+}
+
+body.dark .conf-btn {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+
+body.dark .conf-btn:hover {
+    background: #047857;
+    color: white;
+}
+
+body.dark .conf-btn2 {
+    background: #14532d;
+    color: #86efac;
+}
+
+body.dark .conf-btn2:hover {
+    background: #166534;
+    color: white;
+}
+
+body.dark .edit-btn {
+    background: #1e3a5f;
+    color: #93c5fd;
+}
+
+body.dark .edit-btn:hover {
+    background: #1e40af;
+    color: white;
+}
+
+body.dark .delete-btn {
+    background: #450a0a;
+    color: #fca5a5;
+}
+
+body.dark .delete-btn:hover {
+    background: #991b1b;
+    color: white;
+}
+
+body.dark .header-login-btn {
+    background: #4a6cf7;
+    color: white;
+}
+body.dark .header-login-btn:hover {
+    background: #3855d6;
+}
+
+body.dark .auth-register-btn {
+    background: #334155;
+    color: #93c5fd;
+    border-color: #4a6cf7;
+}
+body.dark .auth-register-btn:hover {
+    background: #4a6cf7;
+    color: white;
+}
+
+body.dark .input-group {
+    border-color: #475569;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
