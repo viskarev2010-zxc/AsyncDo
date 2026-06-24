@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="/frontend/css/style.css">
 </head>
 <body>
-    <header class="header">
+     <header class="header">
         <div class="header-left">
-            <span class="logo">⚡ AsyncDo</span>
+            <!-- Добавлен onclick и стиль курсора для логотипа -->
+            <span class="logo" onclick="goHome()" style="cursor: pointer;">⚡ AsyncDo</span>
         </div>
 
         <div class="header-right" id="headerRegister" style="display: flex;">
@@ -24,7 +25,8 @@
             <div class="user-info">
                 <button class="theme-btn" onclick="toggleTheme()">🌓</button>
                 <img class="user-icon-img" src="/frontend/images/userlogo_theme_white.png" alt="userlogo" width="32">
-                <span class="user-name" id="headerUserName"></span>
+                <!-- Добавлен onclick и стиль курсора для никнейма -->
+                <span class="user-name" id="headerUserName" onclick="goProfile()" style="cursor: pointer; font-weight: bold;"></span>
             </div>
             <button class="logout-btn" onclick="logout()">Выйти</button>
         </div>

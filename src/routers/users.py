@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import get_db
 from src.schemas.users import UserAuth
 from src.models.users import UserModel
-from src.auth_utils import generate_salt, hash_password
+# ДОБАВЛЕН ИМПОРТ: create_access_token
+from src.auth_utils import generate_salt, hash_password, create_access_token
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
@@ -23,7 +24,6 @@ async def register_user(user_data: UserAuth, db: AsyncSession = Depends(get_db))
             )
 
         user_salt = generate_salt()
-
         hashed_pass = hash_password(user_data.password, user_salt)
 
         new_user = UserModel(
@@ -69,8 +69,13 @@ async def login_user(user_data: UserAuth, db: AsyncSession = Depends(get_db)):
             detail="Неверный логин или пароль"
         )
 
+    # ИЗМЕНЕНО: Генерируем JWT-токен. Зашиваем ID пользователя в поле "sub"
+    token = create_access_token(data={"sub": str(user.id)})
+
+    # ИЗМЕНЕНО: Возвращаем токен согласно стандарту OAuth2
     return {
         "status": "success",
         "message": "Вы успешно вошли в профиль",
-        "user_id": user.id
+        "access_token": token,
+        "token_type": "bearer"
     }

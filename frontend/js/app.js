@@ -1,18 +1,17 @@
 const API_URL = 'http://127.0.0.1:8000/api/tasks';
 const USER_API_URL = 'http://127.0.0.1:8000/api/users';
 
-let currentUserId = null;
-let currentFilter = 'all'
-let currentSearch = ''
+let currentFilter = 'all';
+let currentSearch = '';
 let currentSort = 'newest';
 
 async function register() {
     const loginInput = document.getElementById('authLogin');
     const passwordInput = document.getElementById('authPassword');
-    
+
     const login = loginInput.value.trim();
     const password = passwordInput.value.trim();
-    
+
     if (!login || !password) {
         alert("Пожалуйста, заполните все поля!");
         return;
@@ -42,30 +41,27 @@ async function register() {
 async function login() {
     const loginInput = document.getElementById('authLogin');
     const passwordInput = document.getElementById('authPassword');
-    
-    const login = loginInput.value.trim();
+
+    const loginName = loginInput.value.trim();
     const password = passwordInput.value.trim();
 
     try {
         const response = await fetch(`${USER_API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ login: login, password: password })
+            body: JSON.stringify({ login: loginName, password: password })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            currentUserId = data.user_id;
+            // Запоминаем токен и имя пользователя в браузере
+            localStorage.setItem('token', data.access_token);
+            localStorage.setItem('username', loginName);
 
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('taskScreen').style.display = 'block';
-            document.getElementById('headerUserName').textContent = login;
-            document.getElementById('headerRegister').style.display = 'none';
-            document.getElementById('headerLogining').style.display = 'flex';
-            document.getElementById('welcomeScreen').style.display = 'none';
-
-            await loadTasks();
+            // Перенаправляем на новый красивый путь /users/sanya
+            history.pushState({}, '', '/users/' + loginName);
+            await Router();
         } else {
             alert("Ошибка входа: " + (data.detail || "Неверный логин или пароль"));
         }
@@ -75,8 +71,24 @@ async function login() {
 }
 
 async function loadTasks() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
     try {
-        const response = await fetch(`${API_URL}?user_id=${currentUserId}`);
+        // 🛡️ БЕЗОПАСНО: Убран ?user_id= из URL. Токен передается в заголовках
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            await logout();
+            return;
+        }
+
         const tasks = await response.json();
         const ul = document.getElementById('taskList');
         ul.innerHTML = '';
@@ -101,8 +113,7 @@ async function loadTasks() {
 
         filteredTasks.forEach(task => {
             const li = document.createElement('li');
-            li.setAttribute('data-task-id', task.id)
-            
+            li.setAttribute('data-task-id', task.id);
             const textSpan = document.createElement('span');
             textSpan.className = 'task-text';
             textSpan.textContent = task.title;
@@ -152,11 +163,17 @@ async function addTask() {
     const title = input.value.trim();
     if (!title) return;
 
+    const token = localStorage.getItem('token');
+
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: title, owner_id: currentUserId })
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            // 🛡️ БЕЗОПАСНО: Поле owner_id больше не отправляется на бэкенд
+            body: JSON.stringify({ title: title })
         });
 
         if (response.ok) {
@@ -170,25 +187,33 @@ async function addTask() {
 
 async function deleteTask(taskId) {
     const li = document.querySelector(`li[data-task-id="${taskId}"]`);
-    li.classList.add('removing');
+    if (li) li.classList.add('removing');
+
+    const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch(`${API_URL}/${taskId}?user_id=${currentUserId}`, {
+        // 🛡️ БЕЗОПАСНО: Убрано ?user_id= из строки запроса
+        const response = await fetch(`${API_URL}/${taskId}`, {
             method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
             await loadTasks();
         }
     } catch (error) {
-        li.classList.remove('removing');
+        if (li) li.classList.remove('removing');
     }
 }
 
 async function confirmTask(taskId) {
+    const token = localStorage.getItem('token');
+
     try {
-        const response = await fetch(`${API_URL}/${taskId}/confirm?user_id=${currentUserId}`, {
-            method: 'PATCH'
+        // 🛡️ БЕЗОПАСНО: Убрано ?user_id= из строки запроса
+        const response = await fetch(`${API_URL}/${taskId}/confirm`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
@@ -200,7 +225,10 @@ async function confirmTask(taskId) {
 }
 
 async function logout() {
-    currentUserId = null;
+    // Полностью очищаем данные пользователя из памяти браузера
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+
     document.getElementById('taskScreen').style.display = 'none';
     document.getElementById('headerLogining').style.display = 'none';
     document.getElementById('headerRegister').style.display = 'flex';
@@ -208,12 +236,15 @@ async function logout() {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('authLogin').value = '';
     document.getElementById('authPassword').value = '';
-    document.getElementById('searchInput').value = ''
+    document.getElementById('searchInput').value = '';
+
+    history.pushState({}, '', '/');
+    await Router();
 }
 
 async function showAuth() {
-    document.getElementById('welcomeScreen').style.display = 'none';
-    document.getElementById('authScreen').style.display = 'block';
+    history.pushState({}, '', '/auth');
+    await Router();
 }
 
 async function filter(status) {
@@ -294,10 +325,15 @@ async function startEditTask(taskId, oldTitle) {
 }
 
 async function saveEditTask(taskId, newTitle) {
+    const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`${API_URL}/${taskId}?user_id=${currentUserId}`, {
+        // 🛡️ БЕЗОПАСНО: Убран ?user_id= из URL, добавлен заголовок Authorization
+        const response = await fetch(`${API_URL}/${taskId}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ title: newTitle })
         });
 
@@ -319,14 +355,21 @@ async function updateTaskCounter(tasks) {
 }
 
 async function clearCompleted() {
+    const token = localStorage.getItem('token');
     try {
-        const response = await fetch(`${API_URL}?user_id=${currentUserId}`);
+        // 🛡️ БЕЗОПАСНО: Получаем задачи текущего пользователя по его токену
+        const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const tasks = await response.json();
         const completed = tasks.filter(task => task.confirmed);
 
         for (const task of completed) {
-            await fetch(`${API_URL}/${task.id}?user_id=${currentUserId}`, {
-                method: 'DELETE'
+            // 🛡️ БЕЗОПАСНО: Удаляем также строго по токену без параметров в URL
+            await fetch(`${API_URL}/${task.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
             });
         }
         await loadTasks();
@@ -357,4 +400,107 @@ async function toggleTheme() {
 
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
+}
+
+function hideAllScreens() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('taskScreen').style.display = 'none';
+}
+
+async function Router() {
+    hideAllScreens();
+    const path = window.location.pathname;
+
+    const savedUsername = localStorage.getItem('username');
+    const token = localStorage.getItem('token');
+
+    // Проверяем регулярным выражением путь вида /users/имя_пользователя
+    const userMatch = path.match(/^\/users\/([a-zA-Z0-9_-]+)$/);
+
+    if (path === '/' || path === '') {
+        // Если пользователь залогинен, показываем шапку авторизованного, но экран приветствия
+        if (token && savedUsername) {
+            document.getElementById('headerUserName').textContent = savedUsername;
+            document.getElementById('headerRegister').style.display = 'none';
+            document.getElementById('headerLogining').style.display = 'flex';
+        } else {
+            document.getElementById('headerRegister').style.display = 'flex';
+            document.getElementById('headerLogining').style.display = 'none';
+        }
+        document.getElementById('welcomeScreen').style.display = 'block';
+    }
+    else if (path === '/auth') {
+        document.getElementById('authScreen').style.display = 'block';
+    }
+    else if (userMatch) {
+        const usernameFromUrl = userMatch[1];
+
+        // Защита: если токена нет, не пускаем в профиль, отправляем на авторизацию
+        if (!token) {
+            history.pushState({}, '', '/auth'   );
+            await Router();
+            return;
+        }
+
+        // Настраиваем шапку сайта и отображаем экран задач
+        document.getElementById('headerUserName').textContent = usernameFromUrl;
+        document.getElementById('headerRegister').style.display = 'none';
+        document.getElementById('headerLogining').style.display = 'flex';
+        document.getElementById('taskScreen').style.display = 'block';
+
+        await loadTasks();
+    }
+    else {
+        // На любые другие неизвестные пути отправляем на главную
+        history.pushState({}, '', '/');
+        document.getElementById('welcomeScreen').style.display = 'block';
+    }
+}
+
+// Отслеживание системных кнопок браузера Назад/Вперед
+window.addEventListener('popstate', Router);
+
+// Автоматический запуск при первой загрузке страницы (F5)
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    const savedUsername = localStorage.getItem('username');
+    const path = window.location.pathname;
+
+    // Если пользователь залогинен, но зашел на главную страницу,
+    // восстанавливаем состояние шапки сайта через вызов роутера
+    await Router();
+});
+
+window.addEventListener('popstate', Router);
+
+// 🛡️ ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+document.addEventListener('DOMContentLoaded', async () => {
+    await Router();
+
+    const token = localStorage.getItem('token');
+    if (token) {
+        // Если пользователь уже залогинен и обновляет страницу (например, на /sanya)
+        const path = window.location.pathname;
+        if (path !== '/' && path !== '/auth') {
+            document.getElementById('headerRegister').style.display = 'none';
+            document.getElementById('headerLogining').style.display = 'flex';
+        }
+        // Автоматически подтягиваем задачи защищенным способом
+        await loadTasks();
+    }
+});
+
+async function goHome() {
+    history.pushState({}, '', '/');
+    await Router();
+}
+
+// Переход обратно в свой профиль при нажатии на никнейм
+async function goProfile() {
+    const savedUsername = localStorage.getItem('username');
+    if (savedUsername && localStorage.getItem('token')) {
+        history.pushState({}, '', '/users/' + savedUsername);
+        await Router();
+    }
 }

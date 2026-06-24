@@ -6,24 +6,35 @@ from src.database import get_db
 from src.schemas import TaskCreate
 from src.models import TaskModel
 from src.schemas.tasks import TaskUpdate
+# ДОБАВЛЕН ИМПОРТ: функция-защитник токена
+from src.auth_utils import get_current_user_id
 
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
 
 @router.get("")
-async def get_tasks(user_id: int, db: AsyncSession = Depends(get_db)):
-    query = select(TaskModel).where(TaskModel.owner_id == user_id).order_by(TaskModel.id.desc())
+async def get_tasks(
+        db: AsyncSession = Depends(get_db),
+        # ИЗМЕНЕНО: вместо user_id из URL, берем его из защищенного токена
+        current_user_id: int = Depends(get_current_user_id)
+):
+    query = select(TaskModel).where(TaskModel.owner_id == current_user_id).order_by(TaskModel.id.desc())
     result = await db.execute(query)
     tasks = result.scalars().all()
     return tasks
 
 
 @router.post("")
-async def create_task(task_data: TaskCreate, db: AsyncSession = Depends(get_db)):
+async def create_task(
+        task_data: TaskCreate,
+        db: AsyncSession = Depends(get_db),
+        # ДОБАВЛЕНО: привязываем создателя строго по его токену
+        current_user_id: int = Depends(get_current_user_id)
+):
     try:
         new_task = TaskModel(
             title=task_data.title,
-            owner_id=task_data.owner_id
+            owner_id=current_user_id  # ИЗМЕНЕНО: теперь подделать создателя невозможно
         )
         db.add(new_task)
         await db.commit()
@@ -34,9 +45,14 @@ async def create_task(task_data: TaskCreate, db: AsyncSession = Depends(get_db))
         await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.delete("/{task_id}")
-async def delete_task(task_id: int, user_id: int,
-    db: AsyncSession = Depends(get_db)):
+async def delete_task(
+        task_id: int,
+        db: AsyncSession = Depends(get_db),
+        # ИЗМЕНЕНО: берем текущего пользователя из токена
+        current_user_id: int = Depends(get_current_user_id)
+):
     try:
         task = await db.get(TaskModel, task_id)
 
@@ -46,7 +62,8 @@ async def delete_task(task_id: int, user_id: int,
                 detail=f"Задача с id {task_id} не найдена"
             )
 
-        if task.owner_id != user_id:
+        # Сверяем владельца с ID из токена
+        if task.owner_id != current_user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Вы не можете удалить чужую задачу!"
@@ -63,8 +80,14 @@ async def delete_task(task_id: int, user_id: int,
         await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.patch("/{task_id}/confirm")
-async def is_confirmed(task_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
+async def is_confirmed(
+        task_id: int,
+        db: AsyncSession = Depends(get_db),
+        # ИЗМЕНЕНО: берем текущего пользователя из токена
+        current_user_id: int = Depends(get_current_user_id)
+):
     try:
         task = await db.get(TaskModel, task_id)
         if task is None:
@@ -73,8 +96,10 @@ async def is_confirmed(task_id: int, user_id: int, db: AsyncSession = Depends(ge
                 detail=f"Задача с id {task_id} не найдена"
             )
 
-        if task.owner_id != user_id:
+        # Сверяем владельца с ID из токена
+        if task.owner_id != current_user_id:
             raise HTTPException(status_code=403, detail="Вы не можете изменить статус чужой задачи!")
+
         task.confirmed = True
         await db.commit()
         return {"status": "success"}
@@ -89,21 +114,21 @@ async def is_confirmed(task_id: int, user_id: int, db: AsyncSession = Depends(ge
 @router.patch("/{task_id}")
 async def update_task(
         task_id: int,
-        user_id: int,
         task_data: TaskUpdate,
-        db: AsyncSession = Depends(get_db)
+        db: AsyncSession = Depends(get_db),
+        # ИЗМЕНЕНО: берем текущего пользователя из токена
+        current_user_id: int = Depends(get_current_user_id)
 ):
     task = await db.get(TaskModel, task_id)
 
     if task is None:
         raise HTTPException(status_code=404, detail="Задача не найдена")
 
-    if task.owner_id != user_id:
+    # Сверяем владельца с ID из токена
+    if task.owner_id != current_user_id:
         raise HTTPException(status_code=403, detail="Нельзя редактировать чужую задачу")
 
     task.title = task_data.title
     await db.commit()
 
     return {"status": "success"}
-
-
